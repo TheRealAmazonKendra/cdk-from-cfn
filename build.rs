@@ -1,12 +1,11 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 use std::env;
+use std::fs::{create_dir_all, File};
 use std::io;
 
-use std::fs;
 use std::io::{Read, Write};
-use std::path;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
@@ -353,31 +352,38 @@ mod cdk {
 }
 
 fn zip_test_snapshots() -> io::Result<()> {
-    // Zip the expected output files for the end-to-end tests so that they can be included in the test binary. This will not affect the size of the cdk-from-cfn binary.
+    // Zip the expected output files and cases for the tests so that they can be included in the test binary. This will not affect the size of the cdk-from-cfn binary.
 
-    let src_dir = "./tests/end-to-end";
-    let out_dir = path::PathBuf::from(env::var("OUT_DIR").unwrap()).join("test");
-    fs::create_dir_all(&out_dir)?;
+    let src_dir = Path::new("tests");
+
+    println!("cargo:rerun-if-changed=./tests/cases");
+    println!("cargo:rerun-if-changed=./tests/expected");
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap()).join("test");
+    create_dir_all(&out_dir)?;
     let out_file = out_dir.join("end-to-end-test-snapshots.zip");
-    let do_not_zip = ["app-boiler-plate-files", "working-dir"];
+    let do_not_zip = [
+        "actual",
+        "cdk_stack_synth",
+        "cdk-stack-synth.rs",
+        "README.md",
+    ];
 
-    let file = fs::File::create(&out_file)?;
-
+    let file = File::create(&out_file)?;
     let walkdir = WalkDir::new(src_dir);
     let mut zip = ZipWriter::new(file);
     let options = SimpleFileOptions::default();
     let mut buffer = Vec::new();
 
-    'dir_entries: for entry in walkdir.into_iter().map(|e| e.unwrap()) {
+    'dir_entries: for entry in walkdir.into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
         let name = path
-            .strip_prefix(Path::new(src_dir))
-            .unwrap_or_else(|_| panic!("{src_dir} should be a prefix of {path:?}"))
+            .strip_prefix(src_dir)
+            .unwrap_or_else(|_| panic!("{} should be a prefix of {path:?}", src_dir.display()))
             .to_str()
             .expect("failed to convert filename to string");
 
         for d in do_not_zip {
-            if name.contains(d) {
+            if name.starts_with(d) {
                 continue 'dir_entries;
             };
         }
@@ -385,7 +391,7 @@ fn zip_test_snapshots() -> io::Result<()> {
         if path.is_file() && entry.depth() > 1 {
             zip.start_file(name, options)
                 .expect("failed to start zip file");
-            let mut f = fs::File::open(path).unwrap_or_else(|_| panic!("failed to open {path:?}"));
+            let mut f = File::open(path).unwrap_or_else(|_| panic!("failed to open {path:?}"));
             f.read_to_end(&mut buffer)
                 .unwrap_or_else(|_| panic!("failed to read {path:?}"));
             zip.write_all(&buffer)

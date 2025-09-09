@@ -1,4 +1,4 @@
 #!/bin/bash
 set -eu
 
-npx --yes cdk@latest synth --no-version-reporting --no-path-metadata --app 'dotnet run --project ./CSharp.csproj'
+"$CDK_PATH" synth $CDK_FLAGS --app 'dotnet run --project ./CSharp.csproj'

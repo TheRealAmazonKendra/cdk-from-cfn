@@ -17,8 +17,8 @@ node_modules/
 /local/*
 
 # For end-to-end tests
-tests/end-to-end-test-snapshots.zip
 **/__pycache__/
 **/.venv/
 **/cdk.out/
 **/*working-dir/
+tests/actual/

@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use cdk_from_cfn::testing::{Files, Paths, Scope};
+use crate::cdk_stack_synth::{Files, Paths};
+use cdk_from_cfn::testing::{Files as BaseFiles, Scope};
 use serde_json::Value;
 use std::collections::{BTreeMap, HashMap};
 
@@ -46,9 +47,9 @@ impl Template {
             let acceptable_diff_path = Paths::case_path(test_name, "Stack.diff");
             if normalized_match {
                 // Delete diff file if it exists since there are no differences
-                Files::remove_file(&acceptable_diff_path);
+                Files::remove_file(&acceptable_diff_path).ok();
             } else {
-                Files::write_diff(&acceptable_diff_path, &current_diff);
+                Files::write_diff(&acceptable_diff_path, &current_diff).ok();
             }
             return Ok(true);
         }
@@ -247,8 +248,8 @@ impl Template {
 
     /// Validate that template templates match expected templates
     pub fn validate(scope: &Scope, stack_name: &str) -> Result<(), String> {
-        let expected_content = Files::load_case_template_from_zip(&scope.test)?;
-        let actual_content = Files::load_actual_synthesized_template(scope, stack_name)?;
+        let expected_content = BaseFiles::load_case_template_from_zip(&scope.test)?;
+        let actual_content = BaseFiles::load_actual_synthesized_template(scope, stack_name)?;
 
         match Self::compare_templates(&expected_content, &actual_content, &scope.test) {
             Ok(true) => {

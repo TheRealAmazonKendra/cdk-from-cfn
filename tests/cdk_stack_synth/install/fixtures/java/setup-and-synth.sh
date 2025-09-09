@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-echo "java setup"
+# Use shared Maven repository
+export MAVEN_OPTS="-Dmaven.repo.local=$PROJECT_ROOT/target/tmp/.m2/repository"
 
-echo "cdk synth"
-npx --yes cdk@latest synth --no-version-reporting --no-path-metadata --app 'mvn -e -q compile exec:java'
+"$CDK_PATH" synth $CDK_FLAGS --app 'mvn -e -q compile exec:java'

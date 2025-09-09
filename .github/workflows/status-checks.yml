@@ -101,7 +101,11 @@ jobs:
           sudo rm -rf /tmp/.dotnet
 
       - name: Tests with Coverage
-        run: just test-cov
+        env:
+          CDK_FROM_CFN_PATH: ./target/llvm-cov-target/debug/cdk-from-cfn
+        run: |
+          just build
+          just test-cov
 
       - name: Coverage Report
         run: |
@@ -148,6 +152,11 @@ jobs:
         with:
           crate: wasm-pack
 
+      - name: Add wasm32 target
+        run: rustup target add wasm32-unknown-unknown
+
       - name: Build wasm package
-        run: |-
-          wasm-pack build --all-features --target=nodejs --out-name=index
+        env:
+          RUSTFLAGS: "--cfg getrandom_js"
+        run: |
+          wasm-pack build --target=nodejs --out-name=index
