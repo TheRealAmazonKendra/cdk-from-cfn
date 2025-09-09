@@ -1,62 +1,45 @@
-diff --git a/./tests/end-to-end/vpc/template.json b/tests/end-to-end/vpc-csharp-working-dir/cdk.out/Stack.template.json
-index cddd267..b101d46 100644
---- a/./tests/end-to-end/vpc/template.json
-+++ b/tests/end-to-end/vpc-csharp-working-dir/cdk.out/Stack.template.json
-@@ -4,8 +4,8 @@
-    "Type": "AWS::EC2::VPC",
-    "Properties": {
-     "CidrBlock": "10.42.0.0/16",
--          "EnableDnsSupport": true,
-     "EnableDnsHostnames": true,
-+    "EnableDnsSupport": true,
-     "Tags": [
-      {
-       "Key": "cost-center",
-@@ -31,10 +31,13 @@
-       {
-        "Fn::Cidr": [
-         {
--                    "Fn::GetAtt": "VPC.CidrBlock"
-+         "Fn::GetAtt": [
-+          "VPC",
-+          "CidrBlock"
-+         ]
-         },
-         6,
--                  8
-+        "8"
-        ]
-       }
-      ]
-@@ -61,10 +64,13 @@
-       {
-        "Fn::Cidr": [
-         {
--                    "Fn::GetAtt": "VPC.CidrBlock"
-+         "Fn::GetAtt": [
-+          "VPC",
-+          "CidrBlock"
-+         ]
-         },
-         6,
--                  8
-+        "8"
-        ]
-       }
-      ]
-@@ -91,10 +97,13 @@
-       {
-        "Fn::Cidr": [
-         {
--                    "Fn::GetAtt": "VPC.CidrBlock"
-+         "Fn::GetAtt": [
-+          "VPC",
-+          "CidrBlock"
-+         ]
-         },
-         6,
--                  8
-+        "8"
-        ]
-       }
-      ]
+Differences found:
+Value mismatch at Resources.Subnet1.Properties.CidrBlock.Fn::Select[1].Fn::Cidr[0].Fn::GetAtt:
+  Expected:
+    "VPC.CidrBlock"
+  Actual:
+    [
+      "VPC",
+      "CidrBlock"
+    ]
+
+Value mismatch at Resources.Subnet1.Properties.CidrBlock.Fn::Select[1].Fn::Cidr[2]:
+  Expected:
+    8
+  Actual:
+    "8"
+
+Value mismatch at Resources.Subnet2.Properties.CidrBlock.Fn::Select[1].Fn::Cidr[0].Fn::GetAtt:
+  Expected:
+    "VPC.CidrBlock"
+  Actual:
+    [
+      "VPC",
+      "CidrBlock"
+    ]
+
+Value mismatch at Resources.Subnet2.Properties.CidrBlock.Fn::Select[1].Fn::Cidr[2]:
+  Expected:
+    8
+  Actual:
+    "8"
+
+Value mismatch at Resources.Subnet3.Properties.CidrBlock.Fn::Select[1].Fn::Cidr[0].Fn::GetAtt:
+  Expected:
+    "VPC.CidrBlock"
+  Actual:
+    [
+      "VPC",
+      "CidrBlock"
+    ]
+
+Value mismatch at Resources.Subnet3.Properties.CidrBlock.Fn::Select[1].Fn::Cidr[2]:
+  Expected:
+    8
+  Actual:
+    "8"
