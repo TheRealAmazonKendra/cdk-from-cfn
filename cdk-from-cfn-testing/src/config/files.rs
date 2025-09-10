@@ -174,4 +174,103 @@ impl Files {
         let test_dir = Paths::actual_dir_path(scope);
         Self::cleanup_directory(&test_dir)
     }
+
+
+
+    pub fn copy_file(from: &std::path::Path, to: &std::path::Path) -> Result<(), String> {
+        std::fs::copy(from, to).map(|_| ()).map_err(|e| {
+            format!(
+                "Failed to copy {} to {}: {}",
+                from.display(),
+                to.display(),
+                e
+            )
+        })
+    }
+
+    pub fn copy(from: &std::path::Path, to: &std::path::Path) -> Result<(), String> {
+        Self::copy_file(from, to)
+    }
+
+    pub fn create_dir_all(path: &std::path::Path) -> Result<(), String> {
+        std::fs::create_dir_all(path)
+            .map_err(|e| format!("Failed to create directory {}: {}", path.display(), e))
+    }
+
+    pub fn create_file(path: &std::path::Path) -> Result<std::fs::File, String> {
+        Self::create_parent_dirs(path)?;
+        std::fs::File::create(path).map_err(|e| format!("Failed to create file {}: {}", path.display(), e))
+    }
+
+    pub fn remove_file(path: &std::path::Path) -> Result<(), String> {
+        std::fs::remove_file(path).map_err(|e| format!("Failed to remove file {}: {}", path.display(), e))
+    }
+
+    pub fn write_diff(path: &std::path::Path, content: &str) -> Result<(), String> {
+        Self::write(path, content)?;
+        println!("  🪄  Updated Stack.diff: {}", path.display());
+        Ok(())
+    }
+
+    pub fn load_acceptable_diff(test_name: &str) -> Result<String, String> {
+        Self::load_from_zip(
+            &Paths::zip_case_path(test_name, "Stack.diff").to_string_lossy(),
+        )
+    }
+
+    pub fn setup_temp_directory(source_dir: &std::path::Path) -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
+        use std::sync::atomic::{AtomicU64, Ordering};
+        use std::process::{id, Command};
+        use std::env::temp_dir;
+        
+        static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
+        
+        let counter = TEMP_COUNTER.fetch_add(1, Ordering::SeqCst);
+        let temp_dir = temp_dir().join(format!("cdk_test_{}_{}", id(), counter));
+        Self::create_dir_all(&temp_dir)?;
+
+        // Clean build artifacts from source before copying
+        Command::new("rm")
+            .args(["-rf", &format!("{}/bin", source_dir.to_string_lossy())])
+            .output()?;
+        Command::new("rm")
+            .args(["-rf", &format!("{}/obj", source_dir.to_string_lossy())])
+            .output()?;
+
+        Command::new("cp")
+            .args([
+                "-a",
+                &format!("{}/.", source_dir.to_string_lossy()),
+                &temp_dir.to_string_lossy(),
+            ])
+            .output()?;
+
+        Ok(temp_dir)
+    }
+
+    pub fn cleanup_temp_directory(
+        temp_dir: &std::path::Path,
+        original_dir: &std::path::Path,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        use std::process::Command;
+        
+        let cdk_out_src = temp_dir.join(Paths::CDK_OUT_DIR);
+        let cdk_out_dst = original_dir.join(Paths::CDK_OUT_DIR);
+
+        if cdk_out_src.exists() {
+            if cdk_out_dst.exists() {
+                Self::cleanup_directory(&cdk_out_dst).ok();
+            }
+            Command::new("cp")
+                .args([
+                    "-r",
+                    &cdk_out_src.to_string_lossy(),
+                    &cdk_out_dst.to_string_lossy(),
+                ])
+                .output()?;
+        }
+
+        Self::cleanup_directory(temp_dir).ok();
+        Ok(())
+    }
 }

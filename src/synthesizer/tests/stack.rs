@@ -3,7 +3,7 @@
 
 use crate::cdk::Schema;
 use crate::ir::CloudformationProgramIr;
-use crate::testing::{Language, Stack};
+use cdk_from_cfn_testing::{Language, Stack};
 use crate::CloudformationParseTree;
 
 pub trait IrStack {

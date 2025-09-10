@@ -4,7 +4,7 @@ use aws_sdk_cloudformation::error::ErrorMetadata;
 use futures::{FutureExt, TryFutureExt};
 
 use crate::cdk_stack_synth::{end_to_end::controller::EndToEndFixtureController, SkipList};
-use cdk_from_cfn::testing::Scope;
+use cdk_from_cfn_testing::Scope;
 use std::panic::{resume_unwind, AssertUnwindSafe};
 
 mod client;

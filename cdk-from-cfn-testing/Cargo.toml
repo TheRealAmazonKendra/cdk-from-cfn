@@ -1,0 +1,16 @@
+[package]
+name = "cdk-from-cfn-testing"
+version = "0.244.0"
+edition = "2021"
+description = "Testing utilities for cdk-from-cfn"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[dependencies]
+similar = "^2.6"
+zip = "^5.0.0"
+
+[features]
+update-snapshots = []
+skip-clean = []
+end-to-end = []

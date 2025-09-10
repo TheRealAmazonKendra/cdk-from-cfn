@@ -106,4 +106,59 @@ impl Paths {
     pub fn zip_case_path(test: &str, file: &str) -> PathBuf {
         PathBuf::from(Self::CASES_DIR).join(test).join(file)
     }
+
+    pub fn cdk_path() -> Result<PathBuf, String> {
+        Ok(Self::project_root()?
+            .join("target/tmp")
+            .join("node_modules")
+            .join(".bin")
+            .join("cdk"))
+    }
+
+    pub fn project_root() -> Result<PathBuf, String> {
+        std::env::current_dir().map_err(|e| format!("Failed to get current directory: {}", e))
+    }
+
+    pub fn app(scope: &Scope) -> PathBuf {
+        Self::actual_dir_path(scope).join(Language::app_name(&scope.lang))
+    }
+
+    pub fn dependency_name(name: &str) -> String {
+        format!("{}-{}", Self::E2E_DEPENDENCY_TAG, name)
+    }
+
+    pub fn boilerplate_dir(lang: &str) -> PathBuf {
+        Self::fixtures_dir(lang).join("boilerplate")
+    }
+
+    pub fn setup_script(lang: &str) -> Result<PathBuf, String> {
+        Ok(Self::project_root()?
+            .join(Self::fixtures_dir(lang))
+            .join("setup-and-synth.sh"))
+    }
+
+    pub fn case_path(test: &str, file: &str) -> PathBuf {
+        Self::testing_dir()
+            .join(Self::CASES_DIR)
+            .join(test)
+            .join(file)
+    }
+
+    pub fn fixtures_dir(lang: &str) -> PathBuf {
+        Self::testing_dir()
+            .join(Self::CDK_STACK_SYNTH_TEST_DIR)
+            .join("install")
+            .join("fixtures")
+            .join(lang)
+    }
+
+    pub fn package_json_src() -> PathBuf {
+        Self::fixtures_dir("typescript")
+            .join("boilerplate")
+            .join("package.json")
+    }
+
+    pub fn package_json_target() -> PathBuf {
+        Path::new("target/tmp").join("package.json")
+    }
 }

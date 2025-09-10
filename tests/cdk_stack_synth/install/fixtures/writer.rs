@@ -1,9 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use crate::cdk_stack_synth::{Files, Paths};
 use cdk_from_cfn::code::CodeBuffer;
-use cdk_from_cfn::testing::{Paths as BasePaths, Scope};
+use cdk_from_cfn_testing::{Files, Paths as BasePaths, Scope};
 use std::borrow::Cow;
 use std::error::Error;
 
@@ -24,7 +23,7 @@ pub trait CdkAppCodeWriter {
         stack_name: &str,
         include_env: bool,
     ) -> Result<(), Box<dyn Error>> {
-        let path = Paths::app(scope);
+        let path = BasePaths::app(scope);
         let mut file = Files::create_file(&path)?;
 
         let code = CodeBuffer::default();

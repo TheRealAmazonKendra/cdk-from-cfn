@@ -1,8 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use crate::cdk_stack_synth::{Files, Paths};
-use cdk_from_cfn::testing::{Files as BaseFiles, Scope};
+use cdk_from_cfn_testing::{Files, Paths as BasePaths};
+use cdk_from_cfn_testing::{Files as BaseFiles, Scope};
 use serde_json::Value;
 use std::collections::{BTreeMap, HashMap};
 
@@ -44,7 +44,7 @@ impl Template {
 
         // Update diff file when update_snapshots is enabled
         if cfg!(feature = "update-snapshots") {
-            let acceptable_diff_path = Paths::case_path(test_name, "Stack.diff");
+            let acceptable_diff_path = BasePaths::case_path(test_name, "Stack.diff");
             if normalized_match {
                 // Delete diff file if it exists since there are no differences
                 Files::remove_file(&acceptable_diff_path).ok();

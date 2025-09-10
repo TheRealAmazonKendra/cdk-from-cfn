@@ -9,11 +9,10 @@ use aws_sdk_cloudformation::{
 };
 
 use super::AwsClient;
-use crate::cdk_stack_synth::Paths;
-use cdk_from_cfn::testing::Paths as BasePaths;
+use cdk_from_cfn_testing::Paths as BasePaths;
 
 use aws_sdk_s3::error::ErrorMetadata;
-use cdk_from_cfn::testing::{Scope, Templates};
+use cdk_from_cfn_testing::{Scope, Templates};
 use serde_json::{from_str, to_string, Value as JsonValue};
 
 #[derive(Debug)]
@@ -48,7 +47,7 @@ impl BaseController {
     async fn deploy_stacks(&self, stack_name: &str, test_name: &str) -> Result<(), ErrorMetadata> {
         // Try dependency stack first (optional)
         if let Some(dep_template) = self.templates.dependency_template() {
-            let dep_stack_name = Paths::dependency_name(stack_name);
+            let dep_stack_name = BasePaths::dependency_name(stack_name);
             Controller::create(
                 self.client.clone(),
                 &dep_stack_name,
@@ -85,7 +84,7 @@ impl BaseController {
         .await?;
 
         // Then dependency stack
-        let dep_stack_name = Paths::dependency_name(stack_name);
+        let dep_stack_name = BasePaths::dependency_name(stack_name);
         Controller::delete(
             self.client.clone(),
             &dep_stack_name,

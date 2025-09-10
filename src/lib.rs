@@ -25,8 +25,6 @@ pub mod parser;
 pub mod primitives;
 pub mod synthesizer;
 
-pub mod testing;
-
 mod util;
 
 #[doc(inline)]

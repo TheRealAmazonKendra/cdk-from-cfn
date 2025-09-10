@@ -1,5 +1,4 @@
-use crate::cdk_stack_synth::{Files, Paths};
-use cdk_from_cfn::testing::{Paths as BasePaths, Scope};
+use cdk_from_cfn_testing::{Files, Paths as BasePaths, Scope};
 use std::error::Error;
 use std::process::Command;
 use walkdir::WalkDir;
@@ -12,16 +11,16 @@ pub struct Install {}
 
 impl Install {
     pub fn shared() -> Result<(), Box<dyn Error>> {
-        if Paths::cdk_path()?.exists() {
+        if BasePaths::cdk_path()?.exists() {
             return Ok(());
         }
 
-        Files::create_dir_all(Paths::target_tmp_path())?;
-        Files::copy(&Paths::package_json_src(), &Paths::package_json_target())?;
+        Files::create_dir_all(&std::path::Path::new("target/tmp"))?;
+        Files::copy_file(&BasePaths::package_json_src(), &BasePaths::package_json_target())?;
 
         let output = Command::new("npm")
             .args(["install", "--silent"])
-            .current_dir(Paths::target_tmp_path())
+            .current_dir(std::path::Path::new("target/tmp"))
             .output()
             .map_err(|e| format!("Failed to run npm install: {}", e))?;
 
@@ -40,7 +39,7 @@ impl Install {
     }
 
     pub fn boilerplate_files(scope: &Scope) -> Result<(), Box<dyn Error>> {
-        let boilerplate_dir = Paths::boilerplate_dir(&scope.lang);
+        let boilerplate_dir = BasePaths::boilerplate_dir(&scope.lang);
         let dest_dir = BasePaths::actual_dir_path(scope);
 
         for entry in WalkDir::new(&boilerplate_dir)

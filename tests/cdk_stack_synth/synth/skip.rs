@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use cdk_from_cfn::testing::{Language, Scope};
+use cdk_from_cfn_testing::{Language, Scope};
 
 #[derive(Clone, Copy)]
 pub struct Issue {

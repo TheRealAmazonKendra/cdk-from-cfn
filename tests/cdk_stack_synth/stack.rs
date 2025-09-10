@@ -8,8 +8,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 use std::string::{String, ToString};
 
-use crate::cdk_stack_synth::{Files, Paths};
-use cdk_from_cfn::testing::{Language, Scope, Stack, StackValidator, Stacks, Templates};
+use cdk_from_cfn_testing::{Files, Language, Paths as BasePaths, Scope, Stack, StackValidator, Stacks, Templates};
 
 use crate::cdk_stack_synth::synth::{SkipList, Template};
 
@@ -73,7 +72,7 @@ impl CdkFromCfnStack for Stack {
         if cleanup_temp {
             Files::cleanup_temp_directory(
                 &working_dir,
-                &cdk_from_cfn::testing::Paths::actual_dir_path(&self.scope),
+                &BasePaths::actual_dir_path(&self.scope),
             )?;
         }
 
@@ -81,7 +80,7 @@ impl CdkFromCfnStack for Stack {
     }
 
     fn setup_working_directory(&self) -> Result<(PathBuf, bool), Box<dyn Error>> {
-        let working_dir = cdk_from_cfn::testing::Paths::actual_dir_path(&self.scope);
+        let working_dir = BasePaths::actual_dir_path(&self.scope);
 
         if self.scope.lang == "csharp" {
             Ok((Files::setup_temp_directory(&working_dir)?, true))
@@ -91,15 +90,15 @@ impl CdkFromCfnStack for Stack {
     }
 
     fn run_cdk_synth(&self, working_dir: &Path, region: &str) -> Result<Output, Box<dyn Error>> {
-        let setup_script_path = Paths::setup_script(&self.scope.lang)?;
+        let setup_script_path = BasePaths::setup_script(&self.scope.lang)?;
 
         Command::new("bash")
             .arg(&setup_script_path)
             .current_dir(working_dir)
             .env("CDK_DEFAULT_REGION", region)
             .env("AWS_DEFAULT_REGION", region)
-            .env("PROJECT_ROOT", Paths::project_root()?)
-            .env("CDK_PATH", Paths::cdk_path()?)
+            .env("PROJECT_ROOT", BasePaths::project_root()?)
+            .env("CDK_PATH", BasePaths::cdk_path()?)
             .env("CDK_FLAGS", "--no-version-reporting --no-path-metadata")
             .output()
             .map_err(|e| -> Box<dyn Error> {

@@ -26,7 +26,7 @@ impl Scope {
             &scope
                 .split("::")
                 .filter(|s| !s.contains("test"))
-                .filter(|s| !s.contains(env!("CARGO_CRATE_NAME")))
+                .filter(|s| !env!("CARGO_CRATE_NAME").contains(s))
                 .filter(|s| *s != lang)
                 .map(|s| s.to_string())
                 .collect::<Vec<String>>()

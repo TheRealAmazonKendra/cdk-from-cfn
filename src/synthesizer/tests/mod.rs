@@ -7,7 +7,7 @@ use crate::ir_synthesizer_test;
 mod stack;
 mod test;
 #[cfg(test)]
-use crate::testing::{Scope, Stack, SynthesizerTest};
+use cdk_from_cfn_testing::{Scope, Stack, SynthesizerTest};
 use cdk_from_cfn_macros::generate_ir_tests;
 use stack::IrStack;
 

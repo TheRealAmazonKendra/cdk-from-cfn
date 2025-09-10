@@ -11,7 +11,7 @@
 
 mod writer;
 
-use cdk_from_cfn::testing::Scope;
+use cdk_from_cfn_testing::Scope;
 use writer::CdkAppCodeWriter;
 
 #[cfg(feature = "typescript")]
