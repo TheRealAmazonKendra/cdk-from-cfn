@@ -2,23 +2,45 @@ name: Update CDK Schema
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * 1'
 
 jobs:
-  generate_schema:
+  update_schema:
+    name: Update Patched CDK Schema
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - name: Check Out
+        uses: actions/checkout@v5
+      
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "*"
       
       - uses: TheRealAmazonKendra/cdk-patched-schema-generator@main
         with:
           output-path: ./src/specification
           
+      - name: Show Diff
+        run: 'git diff'
+
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
-          commit-message: Update CDK schemas
-          title: 'chore: update CDK schemas'
-          body: Auto-generated CDK schema update
-          branch: update-cdk-schemas
+          delete-branch: true
+          body: |
+            Updates Patched CDK Schema. See details in [workflow run].
+            
+            [workflow run]: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          commit-message: |-
+            chore: update patched cdk schema
+            
+            Updates Patched CDK Schema. See details in [workflow run].
+            
+            [workflow run]: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          title: 'chore: update patched cdk schema'
+          labels: auto-approve
+          branch: automation/update-cdk-schemas
